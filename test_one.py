@@ -1,4 +1,5 @@
 import hashlib
+import binascii
 
 hash_object = hashlib.sha256(b'abc')
 hex_dig = hash_object.hexdigest()
@@ -39,9 +40,17 @@ hash_object.update(b'ab')
 hash_object.update(b'\x63')
 print(hash_object)
 digest = hash_object.digest()
-print(digest)
+print("digest: ", digest)
+hexified = binascii.hexlify(digest)
+print("hexlified digest: ", hexified)
+decoded = hexified.decode("utf-8")
+print("hexlified and decoded digest: ", decoded)
 hex_dig = hash_object.hexdigest()
-print(hex_dig)
+print("hexdigest: ", hex_dig)
+if (hex_dig == decoded):
+    print("they are the same")
+else:
+    print("they are different")
 print()
 
 buffer = bytearray()
