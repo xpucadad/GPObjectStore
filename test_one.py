@@ -52,6 +52,12 @@ if (hex_dig == decoded):
 else:
     print("they are different")
 print()
+hexed = digest.hex()
+print(hexed)
+if (hexed == decoded):
+    print("they are the same")
+else:
+    print("they are different")
 
 buffer = bytearray()
 buffer.extend(b'abc')
