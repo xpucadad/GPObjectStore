@@ -11,8 +11,9 @@ class GPObjectStoreTestCase(unittest.TestCase):
         self.object = None
 
     def test_getDigest(self):
-        digest = self.object.getHexDigest()
-        self.assertEqual(digest, self.abcdigest, 'incorrect hash value')
+        digest = self.object.sha256x2()
+        hexdigest = digest.hex()
+        self.assertEqual(hexdigest, self.abcdigest, 'incorrect hash value')
 
 def suite():
     suite = unittest.TestLoader().loadTestsFromTestCase(GPObjectStoreTestCase)
