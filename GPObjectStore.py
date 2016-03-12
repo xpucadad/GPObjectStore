@@ -1,14 +1,17 @@
 import hashlib
+import struct
+import time
 
 class Object:
     object_folder = "./objects"
+    data = bytearray(0)
+    digest = bytearray(0)
 
     def __init__(self):
-        self.data = bytearray()
-        self.digest = bytearray()
+        pass
 
-    def setData(self,data):
-        self.data.extend(data)
+    def extendData(self,stuff):
+        self.data.extend(stuff)
 
     def sha256x2(self):
         if len(self.digest) == 0:
@@ -18,32 +21,43 @@ class Object:
             self.digest = hashobj.digest()
         return self.digest
 
+    def print_data(self):
+        print(self.data.hex())
+
+    def print_digest(self):
+        print(self.digest.hex())
+
 class BTCBlock(Object):
     block_size = bytearray(4)
     block_header = bytearray(80)
     block_content = bytearray()
 
 
-class BTCBlockHeader(Object)
-    version = bytearray(0x00000001)
+class BTCBlockHeader(Object):
+    version = struct.pack("I", 1)
     previous_block_hash = bytearray(32)
     merkle_root = bytearray(32)
-    time_stamp = 0
+    time_stamp = bytearray(4)
     difficulty_target = bytearray(4)
     nonce = bytearray(4)
 
     def __init__(self,pbh,dt):
+        self.data = bytearray()
         self.previous_block_hash = pbh
         self.difficulty_target = dt
-        self.timestamp = pack("I", int(time.time()))
+        self.setTimeStamp()
 
-    def hashHeader(self)
-        self.data[0:4] = version[0:]
-        self.data[4:36] = self.previous_block_hash
-        self.data[36:68] = self.merkle_root
-        self.data[68:72] = self.time_stamp
-        self.data[72:76] = self.difficulty_target
-        self.data[76:80] = self.nonce
+    def setTimeStamp(self,value = 0):
+        if (value == 0):
+            value = int(time.time())
 
+        self.time_stamp = struct.pack("I", value)
+
+    def hashHeader(self):
+        self.extendData(self.version[0:])
+        self.extendData(self.previous_block_hash)
+        self.extendData(self.merkle_root)
+        self.extendData(self.time_stamp)
+        self.extendData(self.difficulty_target)
+        self.extendData(self.nonce)
         return self.sha256x2()
-        
