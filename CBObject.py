@@ -11,7 +11,7 @@ class CBObject():
     #merkle_root = bytearray(32)
     content_digest = bytearray()
     time_stamp = bytearray()
-    difficulty_target = bytearray(4)
+    difficulty_target = bytearray(b'\x1e\x03\xa3\x0c')
     #nonce = bytearray(4)
     # Data Fields
     content_size = bytearray(4)
@@ -37,19 +37,22 @@ class CBObject():
         # nonce starts at 0
         nonce = 0
         self.header.extend(struct.pack('I', nonce))
-        loop = 4
+
+        # get the difficulty target as a hex string
+        dthex = self.getHexDifficulty();
 
         farmed = 0
         while not farmed:
             test_digest = self.sha256x2(self.header)
-            # test_digest < generated difficulty_target
-            if (nonce > loop):
+            print(test_digest.hex())
+            if (test_digest.hex() < dthex):
                 self.header_digest = test_digest
                 farmed = 1
             else:
                 nonce += 1
                 self.header[76:80] = struct.pack('I',nonce)
 
+        print(test_digest.hex(), dthex)
         return self.header_digest
 
     def sha256x2(self, data):
@@ -61,6 +64,22 @@ class CBObject():
 
     def dumpHeader(self):
         print(self.header.hex())
+
+    def getHexDifficulty(self):
+        # Extract the exponent from the difficulty target
+        # and convert to an integer
+        eraw = bytearray(self.difficulty_target)
+        eraw[1:4] = b'\x00\x00\x00'
+        exponent = struct.unpack('I', eraw)[0] - 3
+
+        # Calculate where the mantissa starts in the final dt
+        # total length minus mant length minus exponent
+        mantstart = 32 - 3 - exponent
+
+        # Create the final difficult target
+        dt = bytearray(32)
+        dt[mantstart:mantstart+3] = self.difficulty_target[1:4]
+        return dt.hex()
 
 class CBObjectFactory:
 
