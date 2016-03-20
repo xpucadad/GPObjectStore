@@ -55,6 +55,18 @@ class CBObject():
         #print(test_digest.hex(), dthex)
         return self.header_digest
 
+    def toBytes(self):
+        block_array = bytearray(88)
+        if len(self.header_digest) > 0:
+            i_content_size = struct.unpack('I', self.content_size)[0]
+            total_size = 80 + 4 + i_content_size
+            #print('total size: ', total_size)
+            block_array[0:4] = struct.pack('I', total_size)
+            block_array[4:84] = self.header
+            block_array[84:88] = self.content_size
+            block_array.extend(self.content)
+        return block_array
+
     def sha256x2(self, data):
         hashobj = hashlib.sha256(data)
         d1 = hashobj.digest()
