@@ -11,7 +11,7 @@ class CBObject():
     #merkle_root = bytearray(32)
     content_digest = bytearray()
     time_stamp = bytearray()
-    difficulty_target = bytearray(b'\x1e\x03\xa3\x0c')
+    difficulty_target = bytearray(b'\x20\x03\xa3\x0c')
     #nonce = bytearray(4)
     # Data Fields
     content_size = bytearray(4)
@@ -22,7 +22,7 @@ class CBObject():
         self.content.extend(data)
         self.content_digest = self.sha256x2(self.content)
         self.time_stamp = struct.pack('I', int(time.time()))
-        print(self.time_stamp.hex())
+        #print(self.time_stamp.hex())
         return
 
     def farm(self, pbh):
@@ -44,7 +44,7 @@ class CBObject():
         farmed = 0
         while not farmed:
             test_digest = self.sha256x2(self.header)
-            print(test_digest.hex())
+            #print(test_digest.hex())
             if (test_digest.hex() < dthex):
                 self.header_digest = test_digest
                 farmed = 1
@@ -52,7 +52,7 @@ class CBObject():
                 nonce += 1
                 self.header[76:80] = struct.pack('I',nonce)
 
-        print(test_digest.hex(), dthex)
+        #print(test_digest.hex(), dthex)
         return self.header_digest
 
     def sha256x2(self, data):
