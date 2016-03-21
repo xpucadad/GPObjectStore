@@ -12,7 +12,7 @@ class CBObject():
     content_digest = bytearray()
     time_stamp = bytearray()
     difficulty_target = bytearray(b'\x20\x03\xa3\x0c')
-    #nonce = bytearray(4)
+
     # Data Fields
     content_size = bytearray(4)
     content = bytearray()
@@ -22,7 +22,6 @@ class CBObject():
         self.content.extend(data)
         self.content_digest = self.sha256x2(self.content)
         self.time_stamp = struct.pack('I', int(time.time()))
-        #print(self.time_stamp.hex())
         return
 
     def getContent(self):
@@ -37,6 +36,7 @@ class CBObject():
         self.header.extend(self.content_digest)
         self.header.extend(self.time_stamp)
         self.header.extend(self.difficulty_target)
+
         # nonce starts at 0
         nonce = 0
         self.header.extend(struct.pack('I', nonce))
@@ -55,13 +55,17 @@ class CBObject():
                 nonce += 1
                 self.header[76:80] = struct.pack('I',nonce)
 
-        #print(test_digest.hex(), dthex)
         return self.header_digest
 
+    # Populate this CBObject from its binary representation
     def parseFromBytes(self, bytes):
+        # The 1st 4 bytes are the size of block starting after
+        # the size.
         total_size = struct.unpack('I', bytes[0:4])[0]
-        #print(total_size)
+
+        # The next 80 bytes are the block header
         self.header = bytes[4:84]
+        # Parse the header into its parts
         self.header_digest = self.sha256x2(self.header)
         self.version = self.header[0:4]
         self.previous_block_hash = self.header[4:36]
@@ -69,21 +73,29 @@ class CBObject():
         self.time_stamp = self.header[68:72]
         self.difficulty_target = self.header[72:76]
         self.nonce = self.header[76:80]
-        self.content_size = bytes[84:88]
-        cs = struct.unpack('I', self.content_size)[0]
-        #print('content size: ', cs)
-        self.content = bytes[88:88+cs]
-        ch = self.sha256x2(self.content)
 
+        # The 4 bytes right after the header are the number
+        # of bytes in the content
+        self.content_size = bytes[84:88]
+
+        # Get the content
+        cs = struct.unpack('I', self.content_size)[0]
+        self.content = bytes[88:88+cs]
+
+        # Hash the content and compare the hash to the digest
+        # from the header.
+        ch = self.sha256x2(self.content)
         if ch.hex() != self.content_digest.hex():
             print('Incorrect content hash')
+
+        # Validate the total size of the block.
         if total_size != 80 + 4 + cs:
             print('Incorrect total size')
 
-        #print(self.content)
-
+        # Return the CBObject this is us.
         return self
 
+    # Produce the binary block from our attributes.
     def toBytes(self):
         block_array = bytearray(88)
         if len(self.header_digest) > 0:
@@ -96,6 +108,8 @@ class CBObject():
             block_array.extend(self.content)
         return block_array
 
+    # Hash the header and return true if it matches our
+    # stored digest for the block header.
     def validateHeaderDigest(self):
         newDigest = self.sha256x2(self.header)
         return newDigest.hex() == self.header_digest.hex()
