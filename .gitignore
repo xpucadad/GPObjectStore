@@ -1,3 +1,4 @@
 *.pyc
 entry.json
 entry.pickle
+*.dat

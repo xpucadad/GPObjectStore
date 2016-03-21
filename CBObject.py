@@ -17,13 +17,16 @@ class CBObject():
     content_size = bytearray(4)
     content = bytearray()
 
-    def setData(self, data):
+    def setContent(self, data):
         self.content_size = struct.pack('I', len(data))
         self.content.extend(data)
         self.content_digest = self.sha256x2(self.content)
         self.time_stamp = struct.pack('I', int(time.time()))
         #print(self.time_stamp.hex())
         return
+
+    def getContent(self):
+        return self.content
 
     def farm(self, pbh):
         self.previous_block_hash.extend(pbh)
@@ -55,6 +58,32 @@ class CBObject():
         #print(test_digest.hex(), dthex)
         return self.header_digest
 
+    def parseFromBytes(self, bytes):
+        total_size = struct.unpack('I', bytes[0:4])[0]
+        #print(total_size)
+        self.header = bytes[4:84]
+        self.header_digest = self.sha256x2(self.header)
+        self.version = self.header[0:4]
+        self.previous_block_hash = self.header[4:36]
+        self.content_digest = self.header[36:68]
+        self.time_stamp = self.header[68:72]
+        self.difficulty_target = self.header[72:76]
+        self.nonce = self.header[76:80]
+        self.content_size = bytes[84:88]
+        cs = struct.unpack('I', self.content_size)[0]
+        #print('content size: ', cs)
+        self.content = bytes[88:88+cs]
+        ch = self.sha256x2(self.content)
+
+        if ch.hex() != self.content_digest.hex():
+            print('Incorrect content hash')
+        if total_size != 80 + 4 + cs:
+            print('Incorrect total size')
+
+        #print(self.content)
+
+        return self
+
     def toBytes(self):
         block_array = bytearray(88)
         if len(self.header_digest) > 0:
@@ -66,6 +95,10 @@ class CBObject():
             block_array[84:88] = self.content_size
             block_array.extend(self.content)
         return block_array
+
+    def validateHeaderDigest(self):
+        newDigest = self.sha256x2(self.header)
+        return newDigest.hex() == self.header_digest.hex()
 
     def sha256x2(self, data):
         hashobj = hashlib.sha256(data)
@@ -97,7 +130,12 @@ class CBObjectFactory:
 
     def createNew(self, data):
         block = CBObject()
-        block.setData(data)
+        block.setContent(data)
+        return block
+
+    def loadFromBytes(self, bytes):
+        block = CBObject()
+        block.parseFromBytes(bytes)
         return block
 
     def addToChain(self):
