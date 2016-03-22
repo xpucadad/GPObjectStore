@@ -3,19 +3,23 @@ import hashlib
 import time
 
 class CBObject():
-    # Header Fields
-    header = bytearray()
-    header_digest = bytearray()
-    version = struct.pack("I", 1)
-    previous_block_hash = bytearray()
-    #merkle_root = bytearray(32)
-    content_digest = bytearray()
-    time_stamp = bytearray()
+    # Values shared by all instances
     difficulty_target = bytearray(b'\x20\x03\xa3\x0c')
+    version = struct.pack("I", 1)
 
-    # Data Fields
-    content_size = bytearray(4)
-    content = bytearray()
+    def __init__(self):
+        # Header Fields
+        self.header = bytearray()
+        self.header_digest = bytearray()
+        self.previous_block_hash = bytearray()
+        #self.merkle_root = bytearray(32) - replaced by content_digest
+        self.content_digest = bytearray()
+        self.time_stamp = bytearray()
+
+        # Data Fields
+        self.content_size = bytearray(4)
+        self.content = bytearray()
+
 
     def setContent(self, data):
         self.content_size = struct.pack('I', len(data))
@@ -86,11 +90,11 @@ class CBObject():
         # from the header.
         ch = self.sha256x2(self.content)
         if ch.hex() != self.content_digest.hex():
-            print('Incorrect content hash')
+            print('ERROR: Incorrect content hash')
 
         # Validate the total size of the block.
         if total_size != 80 + 4 + cs:
-            print('Incorrect total size')
+            print('ERROR: Incorrect total size')
 
         # Return the CBObject this is us.
         return self
@@ -151,9 +155,3 @@ class CBObjectFactory:
         block = CBObject()
         block.parseFromBytes(bytes)
         return block
-
-    def addToChain(self):
-        pass
-
-    def loadFromChain(self, height):
-        pass
