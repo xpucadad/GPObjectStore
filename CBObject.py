@@ -3,27 +3,38 @@ import hashlib
 import time
 
 class CBObject():
-    # Values shared by all instances
-    difficulty_target = bytearray(b'\x20\x03\xa3\x0c')
+    # Class variables
+    raw_difficulty_target = b'\x20\x03\xa3\x0c'
+    hex_difficulty_target = ''
     version = struct.pack("I", 1)
 
     def __init__(self):
-        # Header Fields
-        self.header = bytearray()
-        self.header_digest = bytearray()
-        self.previous_block_hash = bytearray()
-        #self.merkle_root = bytearray(32) - replaced by content_digest
-        self.content_digest = bytearray()
-        self.time_stamp = bytearray()
+        # Generate the class level diffulty on the 1st instantiation
+        if len(CBObject.hex_difficulty_target) == 0:
+            self.generateHexDifficulty()
 
-        # Data Fields
-        self.content_size = bytearray(4)
-        self.content = bytearray()
+    # Get the hex string that represents the difficulty target digest
+    # This generates a class level variable so it should only be called
+    # the first time an object is instantiated from the class.
+    def generateHexDifficulty(self):
+        # Extract the exponent from the difficulty target
+        # and convert to an integer
+        eraw = bytearray(CBObject.raw_difficulty_target)
+        eraw[1:4] = b'\x00\x00\x00'
+        exponent = struct.unpack('I', eraw)[0] - 3
 
+        # Calculate where the mantissa starts in the final dt
+        # total length minus mant length minus exponent
+        mantstart = 32 - 3 - exponent
+
+        # Create the final difficult target
+        dt = bytearray(32)
+        dt[mantstart:mantstart+3] = self.raw_difficulty_target[1:4]
+        CBObject.hex_difficulty_target = dt.hex()
 
     def setContent(self, data):
         self.content_size = struct.pack('I', len(data))
-        self.content.extend(data)
+        self.content = data
         self.content_digest = self.sha256x2(self.content)
         self.time_stamp = struct.pack('I', int(time.time()))
         return
@@ -32,27 +43,25 @@ class CBObject():
         return self.content
 
     def farm(self, pbh):
-        self.previous_block_hash.extend(pbh)
+        self.previous_block_hash = pbh
 
         # create the header bytearray
-        self.header.extend(self.version)
+        self.header = bytearray()
+        self.header.extend(CBObject.version)
         self.header.extend(self.previous_block_hash)
         self.header.extend(self.content_digest)
         self.header.extend(self.time_stamp)
-        self.header.extend(self.difficulty_target)
+        self.header.extend(self.raw_difficulty_target)
 
         # nonce starts at 0
         nonce = 0
         self.header.extend(struct.pack('I', nonce))
 
-        # get the difficulty target as a hex string
-        dthex = self.getHexDifficulty();
-
         farmed = 0
         while not farmed:
             test_digest = self.sha256x2(self.header)
             #print(test_digest.hex())
-            if (test_digest.hex() < dthex):
+            if test_digest.hex() < CBObject.hex_difficulty_target:
                 self.header_digest = test_digest
                 farmed = 1
             else:
@@ -96,7 +105,7 @@ class CBObject():
         if total_size != 80 + 4 + cs:
             print('ERROR: Incorrect total size')
 
-        # Return the CBObject this is us.
+        # Return the CBObject that is us.
         return self
 
     # Produce the binary block from our attributes.
@@ -110,7 +119,7 @@ class CBObject():
             block_array[4:84] = self.header
             block_array[84:88] = self.content_size
             block_array.extend(self.content)
-        return block_array
+        return bytes(block_array)
 
     # Hash the header and return true if it matches our
     # stored digest for the block header.
@@ -127,22 +136,6 @@ class CBObject():
 
     def dumpHeader(self):
         print(self.header.hex())
-
-    def getHexDifficulty(self):
-        # Extract the exponent from the difficulty target
-        # and convert to an integer
-        eraw = bytearray(self.difficulty_target)
-        eraw[1:4] = b'\x00\x00\x00'
-        exponent = struct.unpack('I', eraw)[0] - 3
-
-        # Calculate where the mantissa starts in the final dt
-        # total length minus mant length minus exponent
-        mantstart = 32 - 3 - exponent
-
-        # Create the final difficult target
-        dt = bytearray(32)
-        dt[mantstart:mantstart+3] = self.difficulty_target[1:4]
-        return dt.hex()
 
 class CBObjectFactory:
 
