@@ -22,7 +22,7 @@ class CBlockChain():
                 block = bytearray(4 + block_size)
                 block[0:4] = raw_block_size
                 block[4:4+block_size] = f.read(block_size)
-                block_object = factory.loadFromBytes(block)
+                block_object = factory.loadFromBytes(bytes(block))
                 self.addBlock(block_object)
 
         return self.chain_height
@@ -46,20 +46,23 @@ class CBlockChain():
         self.chain_height = len(self.height_list)
         return self.chain_height
 
-    def getBlock(self, block_height):
+    def getBlockAtHeight(self, block_height):
         block_digest = self.height_list[block_height]
         block = self.block_dict[block_digest]
         return block
 
+    def getBlockWithDigest(self, block_digest):
+        block = self.block_dict[block_digest]
+        return block
+
     def getBlockContent(self, block_height):
-        block = self.getBlock(block_height)
+        block = self.getBlockAtHeight(block_height)
         content = block.getContent()
         return content
 
     def getLastBlockDigest(self):
-        last_digest = bytearray()
         if len(self.height_list) == 0:
-            last_digest = bytearray(32)
+            last_digest = bytes(32)
         else:
             last_digest = self.height_list[-1]
         return last_digest

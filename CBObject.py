@@ -71,13 +71,13 @@ class CBObject():
         return self.header_digest
 
     # Populate this CBObject from its binary representation
-    def parseFromBytes(self, bytes):
+    def parseFromBytes(self, bytestream):
         # The 1st 4 bytes are the size of block starting after
         # the size.
-        total_size = struct.unpack('I', bytes[0:4])[0]
+        total_size = struct.unpack('I', bytestream[0:4])[0]
 
         # The next 80 bytes are the block header
-        self.header = bytes[4:84]
+        self.header = bytestream[4:84]
         # Parse the header into its parts
         self.header_digest = self.sha256x2(self.header)
         self.version = self.header[0:4]
@@ -89,11 +89,11 @@ class CBObject():
 
         # The 4 bytes right after the header are the number
         # of bytes in the content
-        self.content_size = bytes[84:88]
+        self.content_size = bytestream[84:88]
 
         # Get the content
         cs = struct.unpack('I', self.content_size)[0]
-        self.content = bytes[88:88+cs]
+        self.content = bytestream[88:88+cs]
 
         # Hash the content and compare the hash to the digest
         # from the header.
@@ -114,7 +114,6 @@ class CBObject():
         if len(self.header_digest) > 0:
             i_content_size = struct.unpack('I', self.content_size)[0]
             total_size = 80 + 4 + i_content_size
-            #print('total size: ', total_size)
             block_array[0:4] = struct.pack('I', total_size)
             block_array[4:84] = self.header
             block_array[84:88] = self.content_size
@@ -136,6 +135,9 @@ class CBObject():
 
     def dumpHeader(self):
         print(self.header.hex())
+
+    def getPreviousBlockHash(self):
+        return self.previous_block_hash
 
 class CBObjectFactory:
 
