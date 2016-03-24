@@ -2,7 +2,7 @@ import struct
 import hashlib
 import time
 
-class CBObject():
+class Block():
     # Class variables
     raw_difficulty_target = b'\x20\x03\xa3\x0c'
     hex_difficulty_target = ''
@@ -10,7 +10,7 @@ class CBObject():
 
     def __init__(self):
         # Generate the class level diffulty on the 1st instantiation
-        if len(CBObject.hex_difficulty_target) == 0:
+        if len(Block.hex_difficulty_target) == 0:
             self.generateHexDifficulty()
 
     # Get the hex string that represents the difficulty target digest
@@ -19,7 +19,7 @@ class CBObject():
     def generateHexDifficulty(self):
         # Extract the exponent from the difficulty target
         # and convert to an integer
-        eraw = bytearray(CBObject.raw_difficulty_target)
+        eraw = bytearray(Block.raw_difficulty_target)
         eraw[1:4] = b'\x00\x00\x00'
         exponent = struct.unpack('I', eraw)[0] - 3
 
@@ -30,7 +30,7 @@ class CBObject():
         # Create the final difficult target
         dt = bytearray(32)
         dt[mantstart:mantstart+3] = self.raw_difficulty_target[1:4]
-        CBObject.hex_difficulty_target = dt.hex()
+        Block.hex_difficulty_target = dt.hex()
 
     def setContent(self, data):
         self.content_size = struct.pack('I', len(data))
@@ -47,7 +47,7 @@ class CBObject():
 
         # create the header bytearray
         self.header = bytearray()
-        self.header.extend(CBObject.version)
+        self.header.extend(Block.version)
         self.header.extend(self.previous_block_hash)
         self.header.extend(self.content_digest)
         self.header.extend(self.time_stamp)
@@ -61,7 +61,7 @@ class CBObject():
         while not farmed:
             test_digest = self.sha256x2(self.header)
             #print(test_digest.hex())
-            if test_digest.hex() < CBObject.hex_difficulty_target:
+            if test_digest.hex() < Block.hex_difficulty_target:
                 self.header_digest = test_digest
                 farmed = 1
             else:
@@ -78,6 +78,7 @@ class CBObject():
 
         # The next 80 bytes are the block header
         self.header = bytestream[4:84]
+
         # Parse the header into its parts
         self.header_digest = self.sha256x2(self.header)
         self.version = self.header[0:4]
@@ -139,14 +140,14 @@ class CBObject():
     def getPreviousBlockHash(self):
         return self.previous_block_hash
 
-class CBObjectFactory:
+class BlockFactory:
 
     def createNew(self, data):
-        block = CBObject()
+        block = Block()
         block.setContent(data)
         return block
 
     def loadFromBytes(self, bytes):
-        block = CBObject()
+        block = Block()
         block.parseFromBytes(bytes)
         return block

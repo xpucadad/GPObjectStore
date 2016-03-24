@@ -2,17 +2,18 @@ import unittest
 import time
 import struct
 from unittest import mock
-from CBObject import CBObject, CBObjectFactory
-from CBlockChain import CBlockChain
 
-class CBlockChainTestCase(unittest.TestCase):
+from blocks import Block, BlockFactory
+from blockchain import BlockChain
+
+class BlockChainTestCase(unittest.TestCase):
     filename = 'test_file_two.dat'
     content = ['The quick brown fox jumps over the lazy dog.', 'Another day, another 50 cents.', "All's well that ends well", 'Four score and seven years ago...']
     zero_digest = bytes(32)
 
     def setUp(self):
-        self.block_chain = CBlockChain()
-        self.factory = CBObjectFactory()
+        self.block_chain = BlockChain()
+        self.factory = BlockFactory()
 
     def tearDown(self):
         del self.block_chain
@@ -59,8 +60,8 @@ class CBlockChainTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(CBlockChainTestCase('test_saveToFile'))
-    suite.addTest(CBlockChainTestCase('test_loadFromFile'))
+    suite.addTest(BlockChainTestCase('test_saveToFile'))
+    suite.addTest(BlockChainTestCase('test_loadFromFile'))
     return suite
 
 if __name__ == '__main__':

@@ -2,16 +2,16 @@ import unittest
 import time
 import struct
 from unittest import mock
-from CBObject import CBObject, CBObjectFactory
+from blocks import Block, BlockFactory
 
-class CBObjectTestCase(unittest.TestCase):
+class BlocksTestCase(unittest.TestCase):
     original_content = 'The quick brown fox jumps over the lazy dog.'
     expected_header_digest = '034670e383dbcd651eefc941685dfd3001abe2eed9ef675876c529eaf784f91d'
     expected_full_block = '800000000100000067050eeb5f95abf57449d92629dcf69f80c26247e207ad006a862d1e4e6498ffa51a910ecba8a599555b32133bf1829455d55fe576677b49cb561d874077385c25e9ed562003a30c6f0000002c00000054686520717569636b2062726f776e20666f78206a756d7073206f76657220746865206c617a7920646f672e'
 
     def setUp(self):
         self.byte_content = self.original_content.encode()
-        self.factory = CBObjectFactory()
+        self.factory = BlockFactory()
 
     @mock.patch('time.time', return_value=1458432293.434245)
     def test_newBlock(self, mock_object):
@@ -60,8 +60,8 @@ class CBObjectTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(CBObjectTestCase('test_newBlock'))
-    suite.addTest(CBObjectTestCase('test_loadedBlock'))
+    suite.addTest(BlocksTestCase('test_newBlock'))
+    suite.addTest(BlocksTestCase('test_loadedBlock'))
     return suite
 
 if __name__ == '__main__':

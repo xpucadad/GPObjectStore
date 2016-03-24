@@ -2,9 +2,9 @@ import hashlib
 import struct
 import time
 
-from CBObject import CBObject, CBObjectFactory
+from blocks import Block, BlockFactory
 
-class CBlockChain():
+class BlockChain():
     def __init__(self):
         self.filename = ''
         self.height_list = []
@@ -13,7 +13,7 @@ class CBlockChain():
 
     def loadFromFile(self, filename):
         self.filename = filename
-        factory = CBObjectFactory()
+        factory = BlockFactory()
         with open(self.filename, 'rb') as f:
             while True:
                 raw_block_size = f.read(4)
