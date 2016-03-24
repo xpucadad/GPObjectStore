@@ -2,8 +2,8 @@ import unittest
 import threading
 import queue
 
-from ContentProcessing import ContentSender
-from ContentProcessing import ContentReciever
+from contentprocessing import ContentSender
+from contentprocessing import ContentReciever
 
 #import time
 #import struct
