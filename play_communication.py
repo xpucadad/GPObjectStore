@@ -1,15 +1,7 @@
 import unittest
 import threading
+import time
 import queue
-
-from contentprocessing import ContentSender
-from contentprocessing import ContentReciever
-
-#import time
-#import struct
-#from unittest import mock
-#from CBObject import CBObject, CBObjectFactory
-#from CBlockChain import CBlockChain
 
 class SendRecieveTestCase(unittest.TestCase):
     def setUp(self): pass
@@ -48,6 +40,29 @@ class SendRecieveTestCase(unittest.TestCase):
 
         for item in content:
             self.assertTrue(item in received)
+
+class ContentSender():
+    def __init__(self, q):
+        self.outgoing = q
+
+    def send(self, content):
+        self.outgoing.put(content)
+
+class ContentReciever(threading.Thread):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs={}):
+        super().__init__(group=group, target=target, name=name)
+        self.name = name
+        self.incoming = kwargs['incoming']
+        self.log = kwargs['log']
+
+    def run(self):
+        while True:
+            item = self.incoming.get()
+            self.log.put(item)
+            if item is None:
+                break
+            time.sleep(2)
+            self.incoming.task_done()
 
 def suite():
     suite = unittest.TestSuite()
