@@ -1,5 +1,6 @@
-import threading
+import logging
 import queue
+import threading
 
 class ProcessContent(threading.Thread):
 
@@ -10,8 +11,11 @@ class ProcessContent(threading.Thread):
 
     def run(self):
         print("ProcessContent thread")
+        logging.info('ProcessContent thread starting')
         while True:
             msg = self.content_queue.get()
             if msg is None: break
+            logging.info(msg)
             print(msg)
             self.content_queue.task_done()
+        logging.info('ProcessContent thread ending')

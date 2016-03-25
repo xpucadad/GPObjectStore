@@ -2,3 +2,4 @@
 entry.json
 entry.pickle
 *.dat
+*.log
