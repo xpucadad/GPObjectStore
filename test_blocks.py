@@ -1,7 +1,9 @@
-import unittest
-import time
+import logging
 import struct
+import time
+import unittest
 from unittest import mock
+
 from blocks import Block, BlockFactory
 
 class BlocksTestCase(unittest.TestCase):
@@ -66,6 +68,14 @@ def suite():
     return suite
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        level=logging.INFO,
+        filename='test_blocks.log',
+        filemode='w',
+        format='%(asctime)s-%(threadName)s-%(message)s'
+    )
+    logging.info('Start logging')
     runner = unittest.TextTestRunner(verbosity = 2)
     test_suite = suite()
     runner.run(test_suite)
+    logging.info('End logging')
