@@ -1,17 +1,20 @@
 import logging
+import logging.config
 import queue
 import threading
 import time
 import unittest
 
+import test_utils
+
 from contentprocessing import ProcessContent
 
 class ProcessContentTestCase(unittest.TestCase):
     def setUp(self):
-        logging.info('setUp')
+        logging.debug('setUp')
 
     def tearDown(self):
-        logging.info('tearDown')
+        logging.debug('tearDown')
 
     def test_01(self):
         logging.info('Start test_01')
@@ -19,15 +22,15 @@ class ProcessContentTestCase(unittest.TestCase):
         kwargs = {}
         kwargs['content_queue'] = content_queue
 
-        t1 = ProcessContent(name='t1', kwargs=kwargs)
+        pct = ProcessContent(name='ProcessContentThread', kwargs=kwargs)
 
-        t1.start()
+        pct.start()
         content = (b'abc', b'def', b'Love is in the air!')
         for i in content:
             content_queue.put(i)
 
         content_queue.put(None)
-        t1.join()
+        pct.join()
         logging.info('End test_01')
 
 def suite():
@@ -36,16 +39,12 @@ def suite():
     return suite
 
 if __name__ == '__main__':
-    logging.basicConfig(
-        filename='test_contentprocessing.log',
-        filemode='w',
-        level=logging.INFO,
-        format='%(asctime)s - %(threadName)s - %(message)s'
-    )
+    test_utils.setup_logging('test_contentprocessing.log')
 
-    logging.info('Log Started')
+    logging.debug('Log Started')
+
     runner = unittest.TextTestRunner(verbosity = 2)
     test_suite = suite()
     runner.run(test_suite)
 
-    logging.info('Log Ended')
+    logging.debug('Log Ended')
