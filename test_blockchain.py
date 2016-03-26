@@ -1,13 +1,15 @@
-import unittest
-import time
+import logging
 import struct
+import time
+import unittest
+
 from unittest import mock
 
 from blocks import Block, BlockFactory
 from blockchain import BlockChain
 
 class BlockChainTestCase(unittest.TestCase):
-    filename = 'test_file_two.dat'
+    filename = 'test_blockchain.dat'
     content = ['The quick brown fox jumps over the lazy dog.', 'Another day, another 50 cents.', "All's well that ends well", 'Four score and seven years ago...']
     zero_digest = bytes(32)
 
@@ -65,6 +67,14 @@ def suite():
     return suite
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        level= logging.INFO,
+        filename='test_blockchain.log',
+        filemode='w',
+        format='%(asctime)s-%(threadName)s-%(message)s'
+    )
+    logging.info('Start logging')
     runner = unittest.TextTestRunner(verbosity = 2)
     test_suite = suite()
     runner.run(test_suite)
+    logging.info('End Logging')
