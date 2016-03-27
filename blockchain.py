@@ -14,7 +14,7 @@ class BlockChain():
 
     def loadFromFile(self, filename):
         self.filename = filename
-        logging.info('BlockChain.loadFromFile.filename: %s', self.filename)
+        logging.debug('BlockChain.loadFromFile.filename: %s', self.filename)
         factory = BlockFactory()
         with open(self.filename, 'rb') as f:
             while True:
@@ -31,7 +31,7 @@ class BlockChain():
 
     def saveToFile(self, filename):
         self.filename = filename
-        logging.info('BlockChain.saveToFile.filename: %s', self.filename)
+        logging.debug('BlockChain.saveToFile.filename: %s', self.filename)
         with open(self.filename, 'wb') as f:
             for i in range(0, self.chain_height):
                 header_digest = self.height_list[i]

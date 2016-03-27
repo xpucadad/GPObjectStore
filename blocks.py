@@ -10,7 +10,7 @@ class Block():
     version = struct.pack("I", 1)
 
     def __init__(self):
-        logging.info('Block.__init__')
+        logging.debug('Block.__init__')
         # Generate the class level diffulty on the 1st instantiation
         if len(Block.hex_difficulty_target) == 0:
             self.generateHexDifficulty()
@@ -19,7 +19,7 @@ class Block():
     # This generates a class level variable so it should only be called
     # the first time an object is instantiated from the class.
     def generateHexDifficulty(self):
-        logging.info('Generating the hex diffulty string. Should only happen once per script execution!')
+        logging.debug('Generating the hex difficulty string. Should only happen once per script execution!')
         # Extract the exponent from the difficulty target
         # and convert to an integer
         eraw = bytearray(Block.raw_difficulty_target)
@@ -36,7 +36,7 @@ class Block():
         Block.hex_difficulty_target = dt.hex()
 
     def setContent(self, data):
-        logging.info('Block.setContent')
+        logging.debug('Block.setContent')
         self.content_size = struct.pack('I', len(data))
         self.content = data
         self.content_digest = self.sha256x2(self.content)
@@ -44,11 +44,11 @@ class Block():
         return
 
     def getContent(self):
-        logging.info('Block.getContent')
+        logging.debug('Block.getContent')
         return self.content
 
     def farm(self, pbh):
-        logging.info('Block.farm')
+        logging.debug('Block.farm')
         self.previous_block_hash = pbh
 
         # create the header bytearray
@@ -65,9 +65,8 @@ class Block():
 
         farmed = 0
         while not farmed:
-            logging.info('Block.farm.nonce: %s', nonce)
+            logging.debug('Block.farm.nonce: %s', nonce)
             test_digest = self.sha256x2(self.header)
-            #print(test_digest.hex())
             if test_digest.hex() < Block.hex_difficulty_target:
                 self.header_digest = test_digest
                 farmed = 1
@@ -79,7 +78,7 @@ class Block():
 
     # Populate this CBObject from its binary representation
     def parseFromBytes(self, bytestream):
-        logging.info('Block.parseFromBytes')
+        logging.debug('Block.parseFromBytes')
         # The 1st 4 bytes are the size of block starting after
         # the size.
         total_size = struct.unpack('I', bytestream[0:4])[0]
@@ -108,12 +107,10 @@ class Block():
         # from the header.
         ch = self.sha256x2(self.content)
         if ch.hex() != self.content_digest.hex():
-            print('ERROR: Incorrect content hash')
             logging.error('Incorrect content hash!')
 
         # Validate the total size of the block.
         if total_size != 80 + 4 + cs:
-            print('ERROR: Incorrect total size')
             logging.error("Incorrect total size!")
 
         # Return the CBObject that is us.
@@ -121,7 +118,7 @@ class Block():
 
     # Produce the binary block from our attributes.
     def toBytes(self):
-        logging.info('Block.toBytes')
+        logging.debug('Block.toBytes')
         block_array = bytearray(88)
         if len(self.header_digest) > 0:
             i_content_size = struct.unpack('I', self.content_size)[0]
@@ -135,7 +132,7 @@ class Block():
     # Hash the header and return true if it matches our
     # stored digest for the block header.
     def validateHeaderDigest(self):
-        logging.info('Block.validateHeaderDigest')
+        logging.debug('Block.validateHeaderDigest')
         newDigest = self.sha256x2(self.header)
         return newDigest.hex() == self.header_digest.hex()
 
@@ -146,8 +143,8 @@ class Block():
         digest = hashobj.digest()
         return digest
 
-    def dumpHeader(self):
-        print(self.header.hex())
+#    def dumpHeader(self):
+#        print(self.header.hex())
 
     def getPreviousBlockHash(self):
         return self.previous_block_hash
@@ -155,13 +152,13 @@ class Block():
 class BlockFactory:
 
     def createNew(self, data):
-        logging.info('BlockFactory.createNew')
+        logging.debug('BlockFactory.createNew')
         block = Block()
         block.setContent(data)
         return block
 
     def loadFromBytes(self, bytes):
-        logging.info('BlockFactory.loadFromBytes')
+        logging.debug('BlockFactory.loadFromBytes')
         block = Block()
         block.parseFromBytes(bytes)
         return block

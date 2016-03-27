@@ -18,7 +18,7 @@ class ProcessContent(threading.Thread):
         while True:
             msg = self.content_queue.get()
             if msg is None: break
-            logging.info(msg)
+            logging.debug(msg)
             self.content_queue.task_done()
-        
+
         logging.debug('ProcessContent thread ending')

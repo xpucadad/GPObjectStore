@@ -1,5 +1,6 @@
 import logging
 import struct
+import test_utils
 import time
 import unittest
 from unittest import mock
@@ -68,14 +69,10 @@ def suite():
     return suite
 
 if __name__ == '__main__':
-    logging.basicConfig(
-        level=logging.INFO,
-        filename='test_blocks.log',
-        filemode='w',
-        format='%(asctime)s-%(threadName)s-%(message)s'
-    )
-    logging.info('Start logging')
+    test_utils.setup_logging('test_blocks.log')
+
+    logging.info('Log started in file test_blocks.log')
     runner = unittest.TextTestRunner(verbosity = 2)
     test_suite = suite()
     runner.run(test_suite)
-    logging.info('End logging')
+    logging.info('Log ended')
