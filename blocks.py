@@ -65,7 +65,6 @@ class Block():
 
         farmed = 0
         while not farmed:
-            logging.debug('Block.farm.nonce: %s', nonce)
             test_digest = self.sha256x2(self.header)
             if test_digest.hex() < Block.hex_difficulty_target:
                 self.header_digest = test_digest
@@ -73,6 +72,8 @@ class Block():
             else:
                 nonce += 1
                 self.header[76:80] = struct.pack('I',nonce)
+
+        logging.debug('Block farmed with nonce: %s', nonce)
 
         return self.header_digest
 

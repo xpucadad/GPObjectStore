@@ -13,25 +13,23 @@ from contentprocessing import ProcessContent
 
 class ProcessContentTestCase(unittest.TestCase):
     filename = 'test_contentprocessing.dat'
+    zero_digest = bytes(32)
 
     def setUp(self):
-        self.blockchain = BlockChain()
+        self.block_chain = BlockChain()
         self.content_queue = queue.Queue()
-        self.block_queue = queue.Queue()
         logging.debug('setUp')
 
     def tearDown(self):
-        del self.block_queue
-        del self.content_queue
-        del self.blockchain
         logging.debug('tearDown')
+        del self.content_queue
+        del self.block_chain
 
     def test_01(self):
         logging.debug('Start test_01')
         kwargs = {}
         kwargs['content_queue'] = self.content_queue
-        kwargs['block_queue'] = self.block_queue
-        kwargs['blockchain' ] = self.blockchain
+        kwargs['block_chain' ] = self.block_chain
 
         pct = ProcessContent(name='ProcessContentThread', kwargs=kwargs)
 
@@ -42,23 +40,18 @@ class ProcessContentTestCase(unittest.TestCase):
             self.content_queue.put(i)
 
         self.content_queue.put(None)
+        self.content_queue.join()
         pct.join()
 
-        # Now get all the generated blocks
+        # Now check the created block chain
         received_content = {}
-        while True:
-            raw_block = self.block_queue.get()
-            if (raw_block is None):
-                break
-            # The block was queued as raw bytes; reconstruct it
-            block = Block()
-            block.parseFromBytes(raw_block)
-            self.assertTrue(block.validateHeaderDigest(), 'Bad header digest')
-            logging.debug(block.toBytes().hex())
-            block_content = block.getContent()
-            received_content[block_content] = True
-            logging.info(block_content)
-            self.block_queue.task_done()
+        digest = self.block_chain.getLastBlockDigest()
+        while digest != self.zero_digest:
+            block = self.block_chain.getBlockWithDigest(digest)
+            raw_content = block.getContent()
+            received_content[raw_content] = True
+            logging.info(raw_content)
+            digest = block.getPreviousBlockHash()
 
         # Verify that there is one block with content for
         # each content input.

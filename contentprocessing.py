@@ -14,8 +14,7 @@ class ProcessContent(threading.Thread):
         # Save the thread name and keyword arguments
         self.name = name
         self.content_queue = kwargs['content_queue']
-        self.block_queue = kwargs['block_queue']
-        self.block_chain = kwargs['blockchain']
+        self.block_chain = kwargs['block_chain']
         self.factory = BlockFactory()
 
     def run(self):
@@ -24,7 +23,7 @@ class ProcessContent(threading.Thread):
         while True:
             msg = self.content_queue.get()
             if msg is None:
-                self.block_queue.put(None)
+                self.content_queue.task_done()
                 break
             logging.debug(msg)
 
@@ -33,9 +32,11 @@ class ProcessContent(threading.Thread):
             pbhd = self.block_chain.getLastBlockDigest()
             hd = block.farm(pbhd)
 
-            # Return the the block as raw bytes
-            self.block_queue.put(block.toBytes())
+            # Add the farmed block to the block chain
+            height = self.block_chain.addBlock(block)
 
+            # Mark the queue entry as done so caller will know
+            # the block has been completely processed.
             self.content_queue.task_done()
 
         logging.debug('ProcessContent thread ending')
