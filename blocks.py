@@ -1,4 +1,4 @@
-import hashlib
+import hashes
 import logging
 import struct
 import time
@@ -39,7 +39,7 @@ class Block():
         logging.debug('Block.setContent')
         self.content_size = struct.pack('I', len(data))
         self.content = data
-        self.content_digest = self.sha256x2(self.content)
+        self.content_digest = hashes.sha256x2(self.content)
         self.time_stamp = struct.pack('I', int(time.time()))
         return
 
@@ -65,7 +65,7 @@ class Block():
 
         farmed = 0
         while not farmed:
-            test_digest = self.sha256x2(self.header)
+            test_digest = hashes.sha256x2(self.header)
             if test_digest.hex() < Block.hex_difficulty_target:
                 self.header_digest = test_digest
                 farmed = 1
@@ -88,7 +88,7 @@ class Block():
         self.header = bytestream[4:84]
 
         # Parse the header into its parts
-        self.header_digest = self.sha256x2(self.header)
+        self.header_digest = hashes.sha256x2(self.header)
         self.version = self.header[0:4]
         self.previous_block_hash = self.header[4:36]
         self.content_digest = self.header[36:68]
@@ -106,7 +106,7 @@ class Block():
 
         # Hash the content and compare the hash to the digest
         # from the header.
-        ch = self.sha256x2(self.content)
+        ch = hashes.sha256x2(self.content)
         if ch.hex() != self.content_digest.hex():
             logging.error('Incorrect content hash!')
 
@@ -134,15 +134,15 @@ class Block():
     # stored digest for the block header.
     def validateHeaderDigest(self):
         logging.debug('Block.validateHeaderDigest')
-        newDigest = self.sha256x2(self.header)
+        newDigest = hashes.sha256x2(self.header)
         return newDigest.hex() == self.header_digest.hex()
 
-    def sha256x2(self, data):
-        hashobj = hashlib.sha256(data)
-        d1 = hashobj.digest()
-        hashobj = hashlib.sha256(d1)
-        digest = hashobj.digest()
-        return digest
+    # def sha256x2(self, data):
+    #     hashobj = hashlib.sha256(data)
+    #     d1 = hashobj.digest()
+    #     hashobj = hashlib.sha256(d1)
+    #     digest = hashobj.digest()
+    #     return digest
 
 #    def dumpHeader(self):
 #        print(self.header.hex())

@@ -1,4 +1,4 @@
-import hashlib
+import hashes
 import logging
 import struct
 import time

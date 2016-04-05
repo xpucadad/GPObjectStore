@@ -20,7 +20,6 @@ class BlocksTestCase(unittest.TestCase):
     def test_newBlock(self, mock_object):
         # Create a new object and farm it
         test_block = self.factory.createNew(self.byte_content)
-#        pbh = test_block.sha256x2(b'0')
         pbh = bytes(32)
         header_digest = test_block.farm(pbh)
 
