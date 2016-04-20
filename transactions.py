@@ -10,7 +10,7 @@ class Transaction():
 
     def setContent(self, data):
         logging.debug('Transaction.setContent')
-        self.content_size = struct.pack('I', len(data))
+        self.content_size = len(data)
         self.content = data
         self.content_digest = hashes.sha256x2(self.content)
         return
@@ -31,9 +31,9 @@ class Transaction():
         # Next 4 bytes are the size of the content starting after the
         # size.
         self.content_size = struct.unpack('I', bytestream[4:8])[0]
-        print(self.content_size)
+
         # The next total_size bytes are the content.
-        self.content = bytestream[8:8+total_size]
+        self.content = bytestream[8:8+self.content_size]
 
         return self
 
@@ -47,6 +47,7 @@ class Transaction():
         working[4:8]= struct.pack('I', self.content_size)
 
         # And now the content itself
-        working.append(self.content)
+        working.extend(self.content)
 
+        logging.debug('Results: %s', working.hex())
         return bytes(working)
