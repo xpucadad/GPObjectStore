@@ -5,6 +5,7 @@ import test_utils
 import unittest
 from unittest import mock
 
+import accounts
 from accounts import Account
 
 class AccountsTestCase(unittest.TestCase):
@@ -26,15 +27,29 @@ class AccountsTestCase(unittest.TestCase):
         private_key = account.getPrivateKey()
         public_key = account.getPublicKey()
 
-        print()
-        print('private key:\t', private_key.hex())
-        print('public_key:\t', public_key.hex())
+        logging.debug('private key: %s', private_key.hex())
+        logging.debug('public_key: %s', public_key.hex())
 
         self.assertTrue(True, 'Should never fail!')
+
+    def test_signature(self):
+        message = b'Suck my dick.'
+        account = Account()
+        account.generateKeys()
+        signature = account.sign(message)
+        logging.debug('signature: %s',signature.hex())
+
+        sig_valid = accounts.isValid(
+            account.getPublicKey(),
+            message,
+            signature
+        )
+        self.assertTrue(sig_valid, "Signature not valid!")
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(AccountsTestCase('test_newAccount'))
+    suite.addTest(AccountsTestCase('test_signature'))
     return suite
 
 if __name__ == '__main__':

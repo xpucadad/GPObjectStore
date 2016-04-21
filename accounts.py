@@ -7,26 +7,22 @@ class Account():
     version = struct.pack('I', 1)
 
     def __init__(self):
-        self.public_key = bytes(32)
-        self.private_key = self._generatePrivateKey()
+        self.private_key = bytes(32)
+        self.public_key = self._generatePublicKey()
 
     def generateKeys(self):
         seed = struct.pack('I', int(time.time()))
-        self.public_key = hashes.sha256x2(seed)
-        self._generatePrivateKey()
+        self.private_key = hashes.sha256x2(seed)
+        logging.debug('generateKeys: private key: %s', self.private_key.hex())
+        self._generatePublicKey()
 
     def loadFromPublicKey(self, bytestream):
         pass
 
-    def _generatePrivateKey(self):
-        pk = bytearray(32)
-        print(len(self.public_key))
-        for i in range(0, len(self.public_key)):
-            pk[i] = self.public_key[i] ^ 0xFF
-        self.private_key = bytes(pk)
-        #print('public_key:\t',self.public_key)
-        #print('private_key:\t',self.private_key)
-        return self.private_key
+    def _generatePublicKey(self):
+        self.public_key = self.private_key
+        logging.debug('_generatePublicKey: public_key: %s', self.public_key.hex())
+        return self.public_key
 
     def getPublicKey(self):
         return self.public_key
@@ -37,8 +33,24 @@ class Account():
     def getAccount(self):
         pass
 
+    # message is expected to be in bytes
     def sign(self, message):
-        return bytes(32)
+        msg_hash = hashes.sha256x2(message)
+        logging.debug('sign: msg_hash: %s', msg_hash.hex())
+        signature = bytearray(32)
+        for i in range(32):
+            signature[i] = msg_hash[i] ^ self.private_key[i]
+        logging.debug('sign: signature: %s', signature.hex())
+        return bytes(signature)
 
 def isValid(pk, message, sig):
-    return True
+    logging.debug('isValid: key: %s',pk.hex())
+    logging.debug('isValid: message: %s',message.hex())
+    logging.debug('isValid: sig: %s',sig.hex())
+    msg_hash = hashes.sha256x2(message)
+    msg_hash_from_sig = bytearray(32)
+    for i in range(32):
+        msg_hash_from_sig[i] = sig[i] ^ pk[i]
+    logging.debug('isValid: msg_hash: %s',msg_hash.hex())
+    logging.debug('isValid: msg_hash_from_sig: %s', msg_hash_from_sig.hex())
+    return (msg_hash == msg_hash_from_sig)
