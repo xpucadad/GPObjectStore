@@ -26,9 +26,13 @@ class AccountsTestCase(unittest.TestCase):
 
         private_key = account.getPrivateKey()
         public_key = account.getPublicKey()
+        address = account.getAddress()
+        b58address = account.getB58Address()
 
         logging.debug('private key: %s', private_key.hex())
         logging.debug('public_key: %s', public_key.hex())
+        logging.debug('address: %s', address.hex())
+        logging.debug('b58 address: %s', b58address)
 
         self.assertTrue(True, 'Should never fail!')
 

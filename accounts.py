@@ -39,8 +39,12 @@ class Account():
     def getPrivateKey(self):
         return self.private_key
 
-    def getAccount(self):
-        pass
+    def getAddress(self):
+        return self.address
+
+    def getB58Address(self):
+        address = hashes.b58encode(self.address)
+        return address
 
     # message is expected to be in bytes
     def sign(self, message):
