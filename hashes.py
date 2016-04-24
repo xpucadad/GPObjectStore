@@ -4,10 +4,17 @@ import math
 __b58chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 __b58base = len(__b58chars)
 
+__b58types = {  0x00: '1',   # Bitcoin Address
+                0x05: '3',  # Pay-to-Script-Hash Address
+             }
+
 # v is a bytes or bytearray
 def b58encode(v):
+    b58type = v[0]
+    data = v[1:]
+
     # convert to a value we can do math on
-    long_value = int.from_bytes(v,'big')
+    long_value = int.from_bytes(data,'big')
 
     result = ''
     while long_value >= __b58base:
@@ -24,16 +31,9 @@ def b58encode(v):
     # Here long_value is the most significant b58it
     result = __b58chars[long_value] + result
 
-    # Apparently BitCoin does something to make sure
-    # leading zeroes in the byte values are not lost
-    #!! This doesn't seem to do anything - nPad always
-    # ends up as 0, so nothing is added!
-    nPad = 0
-    for c in v:
-        if c == '\0': nPad += 1
-        else: break
+    type = __b58types[b58type]
 
-    return (__b58chars[0]*nPad) + result
+    return type + result
 
 def __sha256(data):
     return hashlib.sha256(data).digest()

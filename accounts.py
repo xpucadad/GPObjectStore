@@ -43,7 +43,10 @@ class Account():
         return self.address
 
     def getB58Address(self):
-        address = hashes.b58encode(self.address)
+        typed_address = bytearray(len(self.address)+1)
+        typed_address[0] = 0x00 # Type for address
+        typed_address.extend(self.address)
+        address = hashes.b58encode(typed_address)
         return address
 
     # message is expected to be in bytes

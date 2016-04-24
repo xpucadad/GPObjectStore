@@ -34,7 +34,10 @@ class AccountsTestCase(unittest.TestCase):
         logging.debug('address: %s', address.hex())
         logging.debug('b58 address: %s', b58address)
 
-        self.assertTrue(True, 'Should never fail!')
+        self.assertEqual(private_key.hex(), '49d9b3c86be205880d4400880ff049d9a3ede0c7ba3cb760d41fd156fa64059f', "Incorrect private key!")
+        self.assertEqual(public_key.hex(), '49d9b3c86be205880d4400880ff049d9a3ede0c7ba3cb760d41fd156fa64059f', "Incorrect public key!")
+        self.assertEqual(address.hex(),'9ff641638012fb19fd5422ec441dd4d16489c7d0', "Incorrect address!")
+        self.assertEqual(b58address, '13EFodMzCjU8X8cdAP2TtuTCeJqHR', "Incorrect b58 address!")
 
     def test_signature(self):
         message = b'Suck my dick.'
