@@ -8,7 +8,8 @@ class Account():
     public_key_size = 32    # 256 bits
     private_key_size = 32   # 256 bits
 
-    def __init__(self):
+    def __init__(self, name):
+        self.name = name
         self.private_key = bytes(32)
         self.public_key = self._generatePublicKey()
         self.address = self._generateAddress()
@@ -49,6 +50,12 @@ class Account():
         address = hashes.b58encode(typed_address)
         return address
 
+    def setName(self, name):
+        self.name = name
+
+    def getName(self):
+        return self.name
+
     # message is expected to be in bytes
     def sign(self, message):
         msg_hash = hashes.sha256x2(message)
@@ -58,6 +65,39 @@ class Account():
             signature[i] = msg_hash[i] ^ self.private_key[i]
         logging.debug('sign: signature: %s', signature.hex())
         return bytes(signature)
+
+    def toBytes(self):
+        logging.debug('Address.toBytes')
+        buffer = bytearray()
+        buffer.extend(self.private_key)
+        buffer.extend(self.public_key)
+#        print('len of address:', len(self.address))
+        buffer.extend(self.address)
+        name_in_bytes = bytes(self.name, 'utf-8')
+#        print('name', name_in_bytes)
+#        print('len', len(name_in_bytes))
+        buffer.extend(struct.pack('I', len(name_in_bytes)))
+        buffer.extend(name_in_bytes)
+        return bytes(buffer)
+
+    def fromBytes(self, bytestream):
+        logging.debug('Address.fromBytes')
+        self.private_key = bytestream[0:32]
+        self.public_key = bytestream[32:64]
+        self.address = bytestream[64:84]
+
+        name_length = struct.unpack('I', bytestream[84:88])[0]
+        name = bytestream[88:88+name_length]
+        self.name = name.decode()
+
+    def equals(self, target):
+        theSame = (
+            self.private_key == target.getPrivateKey()
+            and self.public_key == target.getPublicKey()
+            and self.address == target.getAddress()
+            # and self.name == target.getName() # name can be different
+        )
+        return theSame
 
 def isValid(pk, message, sig):
     logging.debug('isValid: key: %s',pk.hex())

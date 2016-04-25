@@ -78,8 +78,8 @@ class Block():
         return self.header_digest
 
     # Populate this CBObject from its binary representation
-    def parseFromBytes(self, bytestream):
-        logging.debug('Block.parseFromBytes')
+    def fromBytes(self, bytestream):
+        logging.debug('Block.fromBytes')
         # The 1st 4 bytes are the size of block starting after
         # the size.
         total_size = struct.unpack('I', bytestream[0:4])[0]
@@ -161,5 +161,5 @@ class BlockFactory:
     def loadFromBytes(self, bytes):
         logging.debug('BlockFactory.loadFromBytes')
         block = Block()
-        block.parseFromBytes(bytes)
+        block.fromBytes(bytes)
         return block
