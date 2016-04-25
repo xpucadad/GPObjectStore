@@ -51,9 +51,25 @@ class HashesTestCase(unittest.TestCase):
         self.assertTrue(encoded == result, 'Encoding error!')
         return encoded
 
+    def test_encode_decode(self):
+        logging.debug('test_encode_decode')
+        logging.debug('test_key %s', self.test_key)
+        encoded = hashes.b58encode(self.test_key_bytes)
+        logging.debug('b58 encoded test key %s', encoded)
+        decoded = hashes.b58decode(encoded)
+        logging.debug('decoded b58 test key %s', decoded.hex())
+        self.assertEqual(decoded.hex(), self.test_key_bytes.hex(), 'decode(encode(key)) /= key!')
+
+    def test_b58_check(self):
+        b58_check = hashes.b58encodecheck(self.test_key_bytes)
+        decoded = hashes.b58decodecheck(b58_check)
+        self.assertEqual(self.test_key, decoded.hex())
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(HashesTestCase('simple_tests'))
+    suite.addTest(HashesTestCase('test_encode_decode'))
+    suite.addTest(HashesTestCase('test_b58_check'))
     return suite
 
 if __name__ == '__main__':
