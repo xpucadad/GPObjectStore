@@ -87,6 +87,7 @@ def b58decodecheck(v):
     # Verify the checksum
     check_checksum = sha256x2(ver_pay)[0:4]
     if (checksum != check_checksum):
+        logging.error('Invalid address %s', v)
         return None
 
     # Return the entire payload
