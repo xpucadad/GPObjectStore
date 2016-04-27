@@ -87,8 +87,8 @@ def b58decodecheck(v):
     # Verify the checksum
     check_checksum = sha256x2(ver_pay)[0:4]
     if (checksum != check_checksum):
-        logging.error('Invalid address %s', v)
-        return None
+        logging.error('Invalid b58 encoding %s', v)
+        raise ResourceWarning(v)
 
     # Return the entire payload
     return ver_pay

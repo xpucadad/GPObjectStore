@@ -48,9 +48,39 @@ class WalletsTestCase(unittest.TestCase):
         t2b = wallet.findAccount(a2_b58_address)
         self.assertTrue(a2.equals(t2b))
 
+    def test_badB58Address(self):
+        wallet = Wallet('test_wallets_w2.dat')
+        account = wallet.createNewAccount('')
+        b58_address = account.getB58Address()
+        if b58_address == 'A':
+            new_10 = 'a'
+        else:
+            new_10 = 'A'
+        bad_address = b58_address[0:10] + new_10 + b58_address[11:]
+        try:
+            retrieved = wallet.findAccount(bad_address)
+        except ResourceWarning as inst:
+            logging.debug("Got expected resource warning for %s", inst.args)
+            failed = True
+        else:
+            failed = False
+
+        self.assertTrue(failed, "Bad address did not fail in find")
+
+        # Now pass a bad type to the decode to check that
+        try:
+            retrieved = wallet.findAccount(1)
+        except ResourceWarning as inst:
+            logging.debug("Got expected resource warning for %s", inst.args)
+            failed = True
+        else:
+            failed = False
+        self.assertTrue(failed, "Incorrect address type did not fail in find")
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(WalletsTestCase('test_newWallet'))
+    suite.addTest(WalletsTestCase('test_badB58Address'))
     return suite
 
 if __name__ == '__main__':

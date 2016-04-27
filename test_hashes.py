@@ -65,11 +65,29 @@ class HashesTestCase(unittest.TestCase):
         decoded = hashes.b58decodecheck(b58_check)
         self.assertEqual(self.test_key, decoded.hex())
 
+    def test_b58_check_failure(self):
+        b58_check = hashes.b58encodecheck(self.test_key_bytes)
+        location = 10
+#        print('before', b58_check)
+        if (b58_check[10] == 'A'):
+            replace = 'a'
+        else:
+            replace = 'A'
+        new = b58_check[0:10] + replace + b58_check[11:]
+#        print('after', new)
+        try:
+            decoded = hashes.b58decodecheck(new)
+        except ResourceWarning:
+            pass
+        else:
+            raise
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(HashesTestCase('simple_tests'))
     suite.addTest(HashesTestCase('test_encode_decode'))
     suite.addTest(HashesTestCase('test_b58_check'))
+    suite.addTest(HashesTestCase('test_b58_check_failure'))
     return suite
 
 if __name__ == '__main__':
