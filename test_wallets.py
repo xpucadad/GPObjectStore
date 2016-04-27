@@ -28,7 +28,6 @@ class WalletsTestCase(unittest.TestCase):
         a1 = wallet.createNewAccount(a1_name)
         a1_raw_address = a1.getAddress()
         a1_b58_address = a1.getB58Address()
-
         a2_name = 'account 2'
         a2 = wallet.createNewAccount(a2_name)
         a2_raw_address = a2.getAddress()
@@ -44,9 +43,9 @@ class WalletsTestCase(unittest.TestCase):
 
         t2n = wallet.findNamedAccount(a2_name)
         self.assertTrue(a2.equals(t2n))
-        t2a = wallet.findAccount(a1_raw_address)
+        t2a = wallet.findAccount(a2_raw_address)
         self.assertTrue(a2.equals(t2a))
-        t2b = wallet.findAccount(a1_b58_address)
+        t2b = wallet.findAccount(a2_b58_address)
         self.assertTrue(a2.equals(t2b))
 
 def suite():

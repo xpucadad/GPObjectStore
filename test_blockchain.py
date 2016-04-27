@@ -43,15 +43,11 @@ class BlockChainTestCase(unittest.TestCase):
         self.assertTrue(blocks_loaded > 0, "No blocks loaded!")
         # start with the top
 
-        print()
-        print("Full block chain:")
-
         digest = self.block_chain.getLastBlockDigest()
         while digest != self.zero_digest:
             block = self.block_chain.getBlockWithDigest(digest)
             content = block.getContent()
-            print("digest: ", hash)
-            print("content: ", content.decode('UTF-8'))
+            logging.debug('content: %s; digest: %s', content.decode('utf-8'), digest.hex())
             digest = block.getPreviousBlockHash()
 
     def createBlock(self, text):
@@ -65,6 +61,7 @@ def suite():
     suite = unittest.TestSuite()
     suite.addTest(BlockChainTestCase('test_saveToFile'))
     suite.addTest(BlockChainTestCase('test_loadFromFile'))
+    suite.addTest(BlockChainTestCase('test_walkChain'))
     return suite
 
 if __name__ == '__main__':

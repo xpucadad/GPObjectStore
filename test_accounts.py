@@ -1,5 +1,6 @@
 import hashes
 import logging
+import random
 import struct
 import test_utils
 from time import sleep
@@ -18,7 +19,8 @@ class AccountsTestCase(unittest.TestCase):
         pass
 
     @mock.patch('time.time', return_value=1458432293.434245)
-    def test_newAccount(self, mock_object):
+    @mock.patch('random.random', return_value= 0.0)
+    def test_newAccount(self, mock_object1, mockobject2):
         # Create a new accounts
         name = 'test new account'
         account = Account(name)
@@ -38,10 +40,10 @@ class AccountsTestCase(unittest.TestCase):
         logging.debug('b58 address: %s', b58address)
         logging.debug('name: %s', set_name)
 
-        self.assertEqual(private_key.hex(), '49d9b3c86be205880d4400880ff049d9a3ede0c7ba3cb760d41fd156fa64059f', "Incorrect private key!")
-        self.assertEqual(public_key.hex(), '49d9b3c86be205880d4400880ff049d9a3ede0c7ba3cb760d41fd156fa64059f', "Incorrect public key!")
-        self.assertEqual(address.hex(),'9ff641638012fb19fd5422ec441dd4d16489c7d0', "Incorrect address!")
-        self.assertEqual(b58address, '13EFodMzCjU8X8cdAP2TtuTCeJqHR', "Incorrect b58 address!")
+        self.assertEqual(private_key.hex(), '1bf1cd4065d7ad80f01b271dcf3121112e97e2553b25a5dad5bfd5cc540f654c', "Incorrect private key!")
+        self.assertEqual(public_key.hex(), '1bf1cd4065d7ad80f01b271dcf3121112e97e2553b25a5dad5bfd5cc540f654c', "Incorrect public key!")
+        self.assertEqual(address.hex(),'2447daf348074b76b36fbc9ec15f154f5d487a37', "Incorrect address!")
+        self.assertEqual(b58address, '14JqQVsxQDSewkkQrJuvCbhZuSHWC2CunJ', "Incorrect b58 address!")
         self.assertEqual(name, set_name, "Incorrect name!")
 
     def test_signature(self):
@@ -61,7 +63,6 @@ class AccountsTestCase(unittest.TestCase):
     def test_not_equal(self):
         a1 = Account('a1')
         a1.generateKeys()
-        sleep(1)   # This should force the accounts to be different
         a2 = Account('a1')
         a2.generateKeys()
 

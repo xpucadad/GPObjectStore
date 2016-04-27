@@ -1,5 +1,6 @@
 import hashes
 import logging
+import random
 import struct
 import time
 
@@ -10,28 +11,33 @@ class Account():
 
     def __init__(self, name):
         self.name = name
-        self.private_key = bytes(32)
-        self.public_key = self._generatePublicKey()
-        self.address = self._generateAddress()
+        # self.private_key = bytes(32)
+        # self.public_key = self._generatePublicKey()
+        # self.address = self._generateAddress()
 
     def generateKeys(self):
-        seed = struct.pack('I', int(time.time()))
+        # Create a seed - note that this is not random enough to be really
+        # secure. Remember this code is only to show processes, not to
+        # provide a secure implementation
+        seed = bytearray(struct.pack('d', time.time()))
+        seed.extend(struct.pack('d', random.random()))
+        logging.debug('generateKeys: seed: %s', seed.hex())
         self.private_key = hashes.sha256x2(seed)
         logging.debug('generateKeys: private key: %s', self.private_key.hex())
-        self._generatePublicKey()
-        self._generateAddress()
+        self.__generatePublicKey()
+        self.__generateAddress()
 
     def loadFromPublicKey(self, bytestream):
         pass
 
-    def _generatePublicKey(self):
+    def __generatePublicKey(self):
         self.public_key = self.private_key
-        logging.debug('_generatePublicKey: public_key: %s', self.public_key.hex())
+        logging.debug('__generatePublicKey: public_key: %s', self.public_key.hex())
         return self.public_key
 
-    def _generateAddress(self):
+    def __generateAddress(self):
         self.address = hashes.ripemd160xsha256(self.public_key)
-        logging.debug('_generateAddress: address: %s',self.address.hex())
+        logging.debug('__generateAddress: address: %s',self.address.hex())
         return self.address
 
     def getPublicKey(self):
@@ -44,10 +50,10 @@ class Account():
         return self.address
 
     def getB58Address(self):
-        typed_address = bytearray(len(self.address)+1)
+        typed_address = bytearray(1)
         typed_address[0] = 0x00 # Type for address
         typed_address.extend(self.address)
-        address = hashes.b58encode(typed_address)
+        address = hashes.b58encodecheck(typed_address)
         return address
 
     def setName(self, name):

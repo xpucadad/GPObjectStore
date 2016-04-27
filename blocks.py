@@ -10,7 +10,6 @@ class Block():
     version = struct.pack("I", 1)
 
     def __init__(self):
-        logging.debug('Block.__init__')
         # Generate the class level diffulty on the 1st instantiation
         if len(Block.hex_difficulty_target) == 0:
             self.generateHexDifficulty()
@@ -36,7 +35,6 @@ class Block():
         Block.hex_difficulty_target = dt.hex()
 
     def setContent(self, data):
-        logging.debug('Block.setContent')
         self.content_size = struct.pack('I', len(data))
         self.content = data
         self.content_digest = hashes.sha256x2(self.content)
@@ -44,11 +42,9 @@ class Block():
         return
 
     def getContent(self):
-        logging.debug('Block.getContent')
         return self.content
 
     def farm(self, pbh):
-        logging.debug('Block.farm')
         self.previous_block_hash = pbh
 
         # create the header bytearray
@@ -79,7 +75,6 @@ class Block():
 
     # Populate this CBObject from its binary representation
     def fromBytes(self, bytestream):
-        logging.debug('Block.fromBytes')
         # The 1st 4 bytes are the size of block starting after
         # the size.
         total_size = struct.unpack('I', bytestream[0:4])[0]
@@ -119,7 +114,6 @@ class Block():
 
     # Produce the binary block from our attributes.
     def toBytes(self):
-        logging.debug('Block.toBytes')
         block_array = bytearray(88)
         if len(self.header_digest) > 0:
             i_content_size = struct.unpack('I', self.content_size)[0]
@@ -133,7 +127,6 @@ class Block():
     # Hash the header and return true if it matches our
     # stored digest for the block header.
     def validateHeaderDigest(self):
-        logging.debug('Block.validateHeaderDigest')
         newDigest = hashes.sha256x2(self.header)
         return newDigest.hex() == self.header_digest.hex()
 

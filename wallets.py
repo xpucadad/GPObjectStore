@@ -32,14 +32,17 @@ class Wallet():
         # if address is bytes, assume it's a "raw" address
 
         if type(address) == str:
-            print("it's a str")
+            logging.debug('Wallet.findAccount looking for %s', address)
             # Get the raw address
-            raw_address = hashes.b58decodecheck(address)
+            typed_address = hashes.b58decodecheck(address)
+            # These come back with the version (type) byte at the beginning.
+            # We need to remove this.
+            raw_address = typed_address[1:]
         elif type(address) == bytes:
-            print("it's a bytes")
+            logging.debug('Wallet.findAccount looking for %s', address.hex())
             raw_address = address
         else:
-            print("it's a", type(address))
+            logging.error('Wallet.findAccount address is of unexpected type: %s', type(address))
             raw_address = bytes(0)
 
         if raw_address in self.address_to_account:

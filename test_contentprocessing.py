@@ -56,7 +56,6 @@ class ProcessContentTestCase(unittest.TestCase):
         # Verify that there is one block with content for
         # each content input.
         for c in input_content:
-            print(c)
             self.assertTrue(c in received_content, 'No block generated for ' + c.decode('utf-8'))
 
         logging.debug('End test_01')
