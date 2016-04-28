@@ -34,11 +34,7 @@ class AccountsTestCase(unittest.TestCase):
         b58address = account.getB58Address()
         set_name = account.getName()
 
-        logging.debug('private key: %s', private_key.hex())
-        logging.debug('public_key: %s', public_key.hex())
-        logging.debug('address: %s', address.hex())
-        logging.debug('b58 address: %s', b58address)
-        logging.debug('name: %s', set_name)
+        logging.debug('new %s', account)
 
         self.assertEqual(private_key.hex(), '1bf1cd4065d7ad80f01b271dcf3121112e97e2553b25a5dad5bfd5cc540f654c', "Incorrect private key!")
         self.assertEqual(public_key.hex(), '1bf1cd4065d7ad80f01b271dcf3121112e97e2553b25a5dad5bfd5cc540f654c', "Incorrect public key!")
@@ -73,13 +69,14 @@ class AccountsTestCase(unittest.TestCase):
         in_name = 'Love that hard cock!'
         account = Account('Visual')
         account.generateKeys()
+        logging.debug('Before marshal %s', account)
         buffer = account.toBytes()
 #        print('test_marshalling:',buffer.hex())
         logging.debug('Marshalled buffer: %s', buffer.hex())
         # Create a new account from the bytes
         new_account = Account('')
         new_account.fromBytes(buffer)
-
+        logging.debug('Unmarshalled %s', account)
         # Check if they have the content
         self.assertTrue(new_account.equals(account))
 

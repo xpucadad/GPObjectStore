@@ -105,6 +105,22 @@ class Account():
         )
         return theSame
 
+    def __repr__(self):
+        if (self.name == ''):
+            name = '<unnamed>'
+        else:
+            name = "\'" + self.name + "\'"
+
+        output = 'Account: ' + name + '\n' + \
+            '\tPrivate Key:\t' + self.private_key.hex() + '\n' + \
+            '\tPublic Key:\t' + self.public_key.hex() + '\n' + \
+            '\tAddress:\t' + self.address.hex() + '\n' + \
+            '\tB58 Address:\t' + self.getB58Address()
+        return output
+
+    def __str__(self):
+        return self.__repr__()
+
 def isValid(pk, message, sig):
     logging.debug('isValid: key: %s',pk.hex())
     logging.debug('isValid: message: %s',message.hex())

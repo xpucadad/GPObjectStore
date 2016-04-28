@@ -1,4 +1,5 @@
 import logging
+import struct
 
 # Project files
 from accounts import Account
@@ -8,23 +9,46 @@ class Wallet():
     address_to_account = dict()
     name_to_account = dict()
 
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self):
+        pass
 
     def loadFromFile(self, file):
-        pass
+        with open(file, 'rb') as f:
+            while True:
+                raw_size = f.read(4)
+                if len(raw_size) < 4: break
+                size = struct.unpack('I', raw_size)[0]
+                buffer = f.read(size)
+                account = Account('')
+                account.fromBytes(buffer)
+                self.__addAccount(account)
 
     def saveToFile(self, file):
-        pass
+        with open(file,'wb') as f:
+        # Loop through all the accounts
+            for account in self.address_to_account.values():
+                # Convert to byte
+                account_in_bytes = account.toBytes()
+                # Write to file
+                length = len(account_in_bytes)
+                buffer = bytearray()
+                buffer.extend(struct.pack('I', length))
+                buffer.extend(account_in_bytes)
+                f.write(buffer)
 
     def createNewAccount(self, name):
         if name != '' and name in self.name_to_account:
             debugging.error("There is already an account named %s. Please use a different name.", name)
         account = Account(name)
         account.generateKeys()
+        self.__addAccount(account)
+
+        return account
+
+    def __addAccount(self, account):
         self.address_to_account[account.getAddress()] = account
-        if name != '':
-            self.name_to_account[name] = account
+        name = account.getName()
+        if name != '': self.name_to_account[name] = account
         return account
 
     def findAccount(self, address):
@@ -66,3 +90,7 @@ class Wallet():
             return None
         else:
             return self.name_to_account[name]
+
+    def __str__(self):
+        out = str(self.address_to_account)
+        return out
