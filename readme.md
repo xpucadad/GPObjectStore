@@ -7,3 +7,4 @@ This code is just to get a deeper understanding of how a block chain protocol li
 2. Where varints are used in the Bitcoin structures for blocks and transactions, this code uses a fixed length of 4 bytes for length counts. This has the same affect as ignoring little/big endian issues: this code will not work correctly if used against objects from the Bitcoin block chain.
 
 Test sub repos
+Test sub repos against
